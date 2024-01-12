@@ -1,56 +1,3 @@
-/*`timescale 1us / 1ps
-
-module ECSU(
-    input CLK,
-    input RST,
-    input thunderstorm,
-    input [5:0] wind,
-    input [1:0] visibility,
-    input signed [7:0] temperature,
-    output reg severe_weather,
-    output reg emergency_landing_alert,
-    output reg [1:0] ECSU_state
-);
-
-// Your code goes here.
-
-always @(posedge CLK or posedge RST) begin
-    if (RST) begin
-        severe_weather <= 0;
-        emergency_landing_alert <= 0;
-        ECSU_state <= 0;
-    end
-    else begin
-        
-        if (wind <= 10 && visibility == 0) begin 
-            // ECSU_state 0: ALL CLEAR
-            severe_weather <= 0;
-            emergency_landing_alert <= 0;
-            ECSU_state <= 0;
-        end 
-        else if ((wind > 10 && wind <= 15) || (visibility > 0 && visibility < 3)) begin
-            severe_weather <= 0;
-            emergency_landing_alert <= 0;
-            ECSU_state <= 1;
-        end
-        else if (thunderstorm || temperature < -35 ||temperature > 35 || wind > 15 || visibility == 3) begin
-            severe_weather <= 1;
-            emergency_landing_alert <= 0;
-            ECSU_state <= 2;
-        end
-        else if(temperature <-40 || temperature >40 || wind > 20) begin
-            severe_weather <= 1;
-            emergency_landing_alert <= 1;
-            ECSU_state <= 3;
-        end
-    end
-end
-
-endmodule
-
-*/
-
-
 `timescale 1us / 1ps
 
 module ECSU(
@@ -65,7 +12,7 @@ module ECSU(
     output reg [1:0] ECSU_state
 );
 
-always @(posedge CLK or posedge RST) begin
+always @(posedge CLK or posedge RST or negedge CLK) begin
     if (RST) begin
         severe_weather <= 0;
         emergency_landing_alert <= 0;
@@ -77,49 +24,73 @@ always @(posedge CLK or posedge RST) begin
                 if ((wind > 10 && wind <= 15) || (visibility == 1)) begin
                     severe_weather <= 0;
                     emergency_landing_alert <= 0;
-                    ECSU_state <= 1;
+                    if (CLK == 1) begin
+                        ECSU_state <= 1;
+                    end
+                end
+                else if (thunderstorm || temperature < -35 || temperature > 35 || wind > 15 || visibility == 3) begin
+                    emergency_landing_alert <= 0;
+                    severe_weather <= 1;
+                    if (CLK == 1) begin
+                        ECSU_state <= 2;
+                    end
                 end
                 else begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
-                    ECSU_state <= 0;
+                    if (CLK == 1) begin
+                        ECSU_state <= 0;
+                    end
                 end 
             end
 
             1: begin
-                if (wind <= 10 && visibility == 0) begin
+                if (wind <= 10 && visibility == 0) begin  
                     severe_weather <= 0;
                     emergency_landing_alert <= 0;
-                    ECSU_state <= 0;
+                    if (CLK == 1) begin
+                        ECSU_state <= 0;
+                    end
                 end 
                 else if (thunderstorm || temperature < -35 || temperature > 35 || wind > 15 || visibility == 3) begin
-                    severe_weather <= 1;
                     emergency_landing_alert <= 0;
-                    ECSU_state <= 2;
+                    severe_weather <= 1;
+                    if (CLK == 1) begin
+                        ECSU_state <= 2;
+                    end
                 end
                 else begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
-                    ECSU_state <= 1;
+                    if (CLK == 1) begin
+                        ECSU_state <= 1;
+                    end
                 end
             end
 
             2: begin
+                
+                
                 if (temperature < -40 || temperature > 40 || wind > 20) begin
                     severe_weather <= 1;
                     emergency_landing_alert <= 1;
-                    ECSU_state <= 3;
+                    if (CLK == 1) begin
+                        ECSU_state <= 3;
+                    end
+                end
+                else if(thunderstorm == 0 && wind <=10 && (temperature >= -35 && temperature <=35) && visibility == 1) begin
+                    severe_weather <= 0;
+                    emergency_landing_alert <= 0;
+                    if (CLK == 1) begin
+                        ECSU_state <= 1;
+                    end
                 end
                 else begin
-                    severe_weather <= 1;
-                    emergency_landing_alert <= 0;
-                    ECSU_state <= 2;
+                    if (CLK == 1) begin
+                        ECSU_state <= 2;
+                    end
                 end
-                // Bu durumda çıkışları güncelleyebilirsiniz.
             end
 
             3: begin
-                // Bu durumda çıkışları güncelleyebilirsiniz.
+                //emergency_landing_alert <= 1;
+                // No state change
             end
 
             default: begin
@@ -128,5 +99,6 @@ always @(posedge CLK or posedge RST) begin
         endcase
     end
 end
+
 
 endmodule

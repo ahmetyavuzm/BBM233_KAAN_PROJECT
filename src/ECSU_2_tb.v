@@ -36,8 +36,8 @@ module ECSU_tb;
     
     // Dump to waveform file
     initial begin
-        $dumpfile("ECSU.wave");
-        $dumpvars;
+        $dumpfile("ECSU.vcd");
+        $dumpvars(0, ECSU_tb);
     end
 
     // Function to print values

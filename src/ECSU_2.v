@@ -22,54 +22,40 @@ always @(posedge CLK or posedge RST) begin
         case (ECSU_state)
             0: begin
                 if ((wind > 10 && wind <= 15) || (visibility == 1)) begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 1;
                 end
                 else if (thunderstorm || temperature < -35 || temperature > 35 || wind > 15 || visibility == 3) begin
                     severe_weather <= 1;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 2;
                 end
                 else begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 0;
                 end 
             end
 
             1: begin
                 if (wind <= 10 && visibility == 0) begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 0;
                 end 
                 else if (thunderstorm || temperature < -35 || temperature > 35 || wind > 15 || visibility == 3) begin
                     severe_weather <= 1;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 2;
                 end
                 else begin
-                    severe_weather <= 0;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 1;
                 end
             end
 
             2: begin
                 if (temperature < -40 || temperature > 40 || wind > 20) begin
-                    severe_weather <= 1;
                     emergency_landing_alert <= 1;
                     ECSU_state <= 3;
                 end
                 else if(thunderstorm == 0 && wind <=10 && (temperature >= -35 && temperature <=35) && visibility == 1) begin
                     severe_weather <= 0;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 1;
                 end
                 else begin
-                    severe_weather <= 1;
-                    emergency_landing_alert <= 0;
                     ECSU_state <= 2;
                 end
             end
