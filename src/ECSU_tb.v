@@ -1,5 +1,6 @@
 `timescale 1us / 1ns
 
+
 module ECSU_tb;
 
     // Inputs
@@ -28,6 +29,8 @@ module ECSU_tb;
         .ECSU_state(ECSU_state)
     );
 	
+
+
     // Clock generation
     initial begin
         CLK = 0;
@@ -39,10 +42,10 @@ module ECSU_tb;
         $dumpfile("ECSU.wave");
         $dumpvars;
     end
-	
+
 
     initial begin
-	
+
         // Initialize Inputs
         RST = 1;
         thunderstorm = 0;
@@ -55,7 +58,8 @@ module ECSU_tb;
         RST = 0;
 		#200;
 		
-		// Stimulus
+        // Stimulus
+
         thunderstorm = 0; wind = 12; visibility = 2'b00; temp = 25;
         #300;
 		thunderstorm = 0; wind = 5; visibility = 2'b00; temp = 25;
@@ -99,4 +103,5 @@ module ECSU_tb;
 		// End the simulation
 		$finish; 
     end
+
 endmodule
