@@ -38,7 +38,7 @@ module ARTAU_tb;
 
     // Dump to waveform file
     initial begin
-        $dumpfile("ARTAU.wave");
+        $dumpfile("ARTAU.vcd");
         $dumpvars;
     end
 
@@ -69,7 +69,7 @@ module ARTAU_tb;
         radar_echo = 1;
         #2;
         radar_echo = 0;
-        #350;
+        #347;
         radar_echo = 1;
         #2;
         radar_echo = 0;
