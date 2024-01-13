@@ -21,7 +21,6 @@ reg[31:0] distance_end_time;
 reg[31:0] pulse_emition_timer;
 reg[31:0] listen_to_echo_timer;
 reg[31:0] status_update_timer;
-reg[31:0] timevar;
 
 reg[1:0] next_state;
 reg[1:0] pulse_counter;
@@ -29,14 +28,12 @@ reg[1:0] pulse_counter;
 
 reg[64:0] speed_of_light;
 reg[64:0] microsecond;
-reg[7:0]  clock_time;
 
 reg[31:0] distance1;
 reg[31:0] distance2;
 reg signed [32:0] relative_distance;
 
 initial begin
-    timevar = 0;
     pulse_counter = 0;
     pulse_emition_timer = 0;
     listen_to_echo_timer = 0;
@@ -45,7 +42,6 @@ initial begin
     radar_pulse_trigger = 0;
     speed_of_light = 300000000; // m/s
     microsecond = 1000000; // us
-    clock_time = 50; // us
 end
 /*
 always @(posedge radar_echo) begin

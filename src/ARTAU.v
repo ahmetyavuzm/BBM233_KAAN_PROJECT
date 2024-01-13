@@ -54,7 +54,7 @@ initial begin
     listen_time = 2000; // us
     asses_time = 3000; // us
 
-    forever innerCLK = #1 ~innerCLK;
+    forever innerCLK = #0.5 ~innerCLK;
 end
 
 
@@ -79,7 +79,7 @@ always @(posedge radar_echo or posedge echo_trigger) begin
                 distance2 = ((distance_end_time - distance_start_time) *speed_of_light) / (2 * microsecond);
                 distance_to_target = distance2;
 
-                relative_distance = (distance2 + ((jet_speed*(distance_end_time- first_start_time))/microsecond) - distance1);
+                relative_distance = (distance2 + ((jet_speed*(distance_end_time- distance_start_time))/microsecond) - distance1);
                 //$display("DISTANCE 1 ", distance1, " DISTANCE 2 ", distance2, " RELATIVE DISTANCE ", relative_distance);
                 if (max_safe_distance > distance2 && relative_distance < 0) begin
                     threat_detected = 1;
@@ -103,27 +103,26 @@ always @(posedge scan_for_target) begin
     //$display("SCAN FOR TARGET ", scan_for_target, " ARTAU STATE ", ARTAU_state, " ", next_state, " ", $realtime);
     case(ARTAU_state)
 
-        0:begin // IDLE STATE
+        0,3:begin // IDLE STATE
             pulse_timer_start = $realtime;
             pulse_counter = 0;
             radar_pulse_trigger = 1;
-            #10;
-            next_state = 1; // EMIT STATE
-        end
-
-        3: begin // ASSESS STATE
-            pulse_timer_start = $realtime;
-            pulse_counter = 0;
-            radar_pulse_trigger = 1;
-            #10;
             next_state = 1; // EMIT STATE
         end
 
     endcase
 end
 
-always @(posedge CLK) begin
-    ARTAU_state = next_state;
+always @(posedge CLK or posedge RST) begin
+    if (RST) begin
+        radar_pulse_trigger = 0;
+        distance_to_target = 0;
+        threat_detected = 0;
+        ARTAU_state = 0;
+        next_state = 0;
+    end else begin
+        ARTAU_state <= next_state;
+    end
 end
 
 
@@ -167,16 +166,5 @@ always @(innerCLK) begin
 
         endcase
 end
-
-always @(posedge RST) begin
-    if (RST) begin
-        radar_pulse_trigger = 0;
-        distance_to_target = 0;
-        threat_detected = 0;
-        ARTAU_state = 0;
-        next_state = 0;
-    end
-end
-
 
 endmodule
