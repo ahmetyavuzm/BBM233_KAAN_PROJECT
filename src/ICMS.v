@@ -23,6 +23,35 @@ module ICMS(
 );
 
    // Your code goes here.
+
+    wire severe_weather;
+
+    ARTAU artau(
+        .radar_echo(radar_echo),
+        .scan_for_target(scan_for_target),
+        .jet_speed(jet_speed),
+        .max_safe_distance(max_safe_distance),
+        .RST(RST),
+        .CLK(CLK),
+        .radar_pulse_trigger(radar_pulse_trigger),
+        .distance_to_target(distance_to_target),
+        .threat_detected(threat_detected),
+        .ARTAU_state(ARTAU_state)
+    );
+
+    ECSU ecsu(
+        .wind(wind),
+        .thunderstorm(thunderstorm),
+        .visibility(visibility),
+        .temperature(temperature),
+        .RST(RST),
+        .CLK(CLK),
+        .severe_weather(severe_weather),
+        .emergency_landing_alert(emergency_landing_alert),
+        .ECSU_state(ECSU_state)
+    );
+
     
+assign safe_to_engage = !severe_weather && threat_detected;
 
 endmodule

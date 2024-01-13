@@ -46,7 +46,7 @@ module ICMS_tb;
 	
 	// Dump to waveform	 file
     initial begin
-        $dumpfile("ICMS.wave");
+        $dumpfile("ICMS.vcd");
         $dumpvars;
     end
 	
