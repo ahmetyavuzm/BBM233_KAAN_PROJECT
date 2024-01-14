@@ -26,6 +26,7 @@ reg[31:0] pulse_timer_start;
 reg[31:0] listen_timer_start;
 reg[31:0] asses_timer_start;
 
+reg next_waits;
 reg[1:0] next_state;
 reg[1:0] pulse_counter;
 
@@ -45,6 +46,7 @@ initial begin
     innerCLK = 0;
     pulse_counter = 0;
     next_state = 0;
+    next_waits = 0;
     radar_pulse_trigger = 0;
     speed_of_light = 300000000; // m/s
     microsecond = 1000000; // us
@@ -54,46 +56,49 @@ initial begin
     listen_time = 2000; // us
     asses_time = 3000; // us
 
-    forever innerCLK = #0.5 ~innerCLK;
+    forever innerCLK = #0.1 ~innerCLK;
 end
 
 
 
 always @(posedge radar_echo or posedge echo_trigger) begin
     //$display("RADAR ECHO ", radar_echo, " ARTAU STATE ", ARTAU_state, " next_state ", $realtime - pulse_timer_start);
-
-    case(ARTAU_state)
+    //$display(echo_trigger, next_state, next_waits);
+    case(next_state)
         2:begin // IDLE STATE
-            echo_waits = 0;
             distance_end_time = $realtime;
+            if(!next_waits) begin
+                echo_waits = 0;
+                echo_trigger = 0;
 
-            if(pulse_counter == 1) begin
-                first_start_time = distance_start_time;
-                distance1 = ((distance_end_time - distance_start_time) *speed_of_light) / (2 * microsecond);
-                distance_to_target = distance1;
+                if(pulse_counter == 1) begin
+                    first_start_time = distance_start_time;
+                    distance1 = ((distance_end_time - distance_start_time) *speed_of_light) / (2 * microsecond);
+                    distance_to_target = distance1;
 
-                radar_pulse_trigger = 1;
-                pulse_timer_start = $realtime;
-                next_state = 1; // EMIT STATE
-            end else if (pulse_counter  == 2) begin
-                distance2 = ((distance_end_time - distance_start_time) *speed_of_light) / (2 * microsecond);
-                distance_to_target = distance2;
+                    radar_pulse_trigger = 1;
+                    pulse_timer_start = $realtime;
+                    next_state = 1; // EMIT STATE
+                    next_waits = 1;
+                end else if (pulse_counter  == 2) begin
+                    distance2 = ((distance_end_time - distance_start_time) *speed_of_light) / (2 * microsecond);
+                    distance_to_target = distance2;
 
-                relative_distance = (distance2 + ((jet_speed*(distance_end_time- distance_start_time))/microsecond) - distance1);
-                //$display("DISTANCE 1 ", distance1, " DISTANCE 2 ", distance2, " RELATIVE DISTANCE ", relative_distance);
-                if (max_safe_distance > distance2 && relative_distance < 0) begin
-                    threat_detected = 1;
-                end else begin
-                    threat_detected = 0;
-                end
+                    relative_distance = (distance2 + ((jet_speed*(distance_end_time- distance_start_time))/microsecond) - distance1);
+                    //$display("DISTANCE 1 ", distance1, " DISTANCE 2 ", distance2, " RELATIVE DISTANCE ", relative_distance);
+                    if (max_safe_distance > distance2 && relative_distance < 0) begin
+                        threat_detected = 1;
+                    end else begin
+                        threat_detected = 0;
+                    end
 
-                asses_timer_start = $realtime;
-                next_state = 3; // ASSESS STATE
-            end 
-        end
-
-        default:begin
-            echo_waits = 1;
+                    asses_timer_start = $realtime;
+                    next_state = 3; // ASSESS STATE
+                    next_waits = 1;
+                end 
+            end else begin
+                echo_waits = 1;
+            end
         end
 
     endcase
@@ -101,13 +106,14 @@ end
 
 always @(posedge scan_for_target) begin
     //$display("SCAN FOR TARGET ", scan_for_target, " ARTAU STATE ", ARTAU_state, " ", next_state, " ", $realtime);
-    case(ARTAU_state)
+    case(next_state)
 
         0,3:begin // IDLE STATE
             pulse_timer_start = $realtime;
             pulse_counter = 0;
             radar_pulse_trigger = 1;
             next_state = 1; // EMIT STATE
+            next_waits = 1;
         end
 
     endcase
@@ -122,6 +128,7 @@ always @(posedge CLK or posedge RST) begin
         next_state = 0;
     end else begin
         ARTAU_state <= next_state;
+        next_waits = 0;
     end
 end
 
@@ -140,7 +147,7 @@ always @(innerCLK) begin
                         distance_start_time = listen_timer_start;
                         
                         next_state = 2; // LISTEN STATE
-                        
+                        next_waits = 1;
                     end
                 end
             end
@@ -148,19 +155,24 @@ always @(innerCLK) begin
             2: begin
                 
                 if ($realtime - listen_timer_start >= listen_time) begin
+                    threat_detected = 0;
                     distance_to_target = 0;
                     next_state = 0; // IDLE STATE
+                    next_waits = 1;
                 end else begin
-                    if (echo_waits) begin
+                    if(echo_waits) begin
                         echo_trigger = 1;
+                        //$display("Hello");
                     end
                 end
             end
 
             3: begin // ASSESS STATE
                 if ($realtime - asses_timer_start >= asses_time) begin
+                    threat_detected = 0;
                     distance_to_target = 0;
                     next_state = 0; // IDLE STATE
+                    next_waits = 1;
                 end 
             end
 
