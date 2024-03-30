@@ -1,0 +1,13 @@
+{
+    "en":{
+        "title": " KAAN Integrated Combat Management System (ICMS)",
+        "description": " My first comprehensive Verilog project",
+        "longDescription": " The final project of the Logic Design course 'KAAN Integrated Combat Management System (ICMS)'. I developed ICMS using the verilog language. The aim of this project is to process the signals coming from the Flight Control System, Enverimental Sensing Unit units to make inferences about environmental conditions, to inform the pilot whether the aircraft can fly in the current environmental conditions and whether there is an enemy threat around. For more detailed information about the project scope, you can check https://web.cs.hacettepe.edu.tr/~bbm231/final_verilog_project_2023/ site. As a result, in this project, I gained information about how basic embedded systems work and how the synchronization of systems is provided."
+    },
+    "tr":{
+        "title": "KAAN Integrated Combat Management System (ICMS)",
+        "description": "İlk geniş kapsamlı Verilog projem",
+        "longDescription": "Mantıksal Tasarım dersinin final projesi 'KAAN Integrated Combat Management System (ICMS)'. ICMS'i verilog dili kullanarak geliştirdim. Bu projede amaç Flight Control System, Enverimental Sensing Unit birimlerinden gelen sinyaller işlenilerek çevresel durumlar hakkında çıkarımlarda bulunmak, uçağın mevcut çevresel şartlarda uçuş sağlayıp sağlayamadığını ve etrafta düşman tehtidi olup olmadığını pilota bildirmektir. Proje kapsamı hakkında daha detaylı bilgi için https://web.cs.hacettepe.edu.tr/~bbm231/final_verilog_project_2023/ sitesini kontrol edebilirsiniz. Sonuç olarak bu projede temel gömülü sistemlerin nasıl çalıştığını, sistemlerinin senkronizasyonunun nasıl sağlandığı hakkında bilgiler edindim."
+    },
+    "tags":["verilog","embedded systems"]
+}
